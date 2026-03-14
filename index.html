@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JMiguelHz · Terminal Demos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/asciinema-player@3.8.0/dist/bundle/asciinema-player.css">
+  <style>
+    /* Oculta el footer del player self-hosted si aparece */
+    .ap-footer { display: none !important; }
+  </style>
+  <style>
+    :root {
+      --bg-void:        #000000;
+      --bg-deep:        #0A0A0A;
+      --bg-card:        #1A1A1A;
+      --bg-card2:       #2D2D2D;
+      --purple-abyss:   #2D0A31;
+      --purple-dark:    #4A0E4E;
+      --purple-mid:     #6B21A8;
+      --purple-core:    #9333EA;
+      --purple-vivid:   #A855F7;
+      --purple-neon:    #9400D3;
+      --glow-soft:      #B026FF;
+      --glow-bright:    #D946EF;
+      --border-dim:     #4A4A4A;
+      --border-mid:     #6B6B6B;
+      --text-main:      #E5E5E5;
+      --text-light:     #F5F5F5;
+      --text-white:     #FFFFFF;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg-void);
+      color: var(--text-main);
+      font-family: 'Rajdhani', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      position: fixed;
+      width: 12px; height: 12px;
+      background: var(--glow-bright);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease;
+      box-shadow: 0 0 10px var(--glow-bright), 0 0 20px var(--glow-soft);
+    }
+    .cursor-trail {
+      position: fixed;
+      width: 30px; height: 30px;
+      border: 1px solid var(--purple-core);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: all 0.15s ease;
+      opacity: 0.5;
+    }
+
+    /* Noise overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.4;
+    }
+
+    /* Grid background */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(147,51,234,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(147,51,234,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 80px 20px 60px;
+      background: linear-gradient(180deg, #2D0A31 0%, #0A0A0A 100%);
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: -100px; left: 50%;
+      transform: translateX(-50%);
+      width: 600px; height: 400px;
+      background: radial-gradient(ellipse, rgba(176,38,255,0.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .header-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--purple-vivid);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.2s forwards;
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: clamp(2.5rem, 7vw, 5rem);
+      line-height: 1;
+      color: var(--text-white);
+      letter-spacing: -1px;
+      text-shadow:
+        0 0 20px var(--glow-soft),
+        0 0 60px rgba(176,38,255,0.4);
+      opacity: 0;
+      animation: fadeUp 0.8s 0.4s forwards;
+    }
+
+    h1 span {
+      color: var(--glow-bright);
+      text-shadow:
+        0 0 10px var(--glow-bright),
+        0 0 30px var(--glow-bright),
+        0 0 80px var(--purple-neon);
+    }
+
+    .subtitle {
+      margin-top: 18px;
+      font-size: 1.1rem;
+      font-weight: 300;
+      color: var(--border-mid);
+      letter-spacing: 2px;
+      font-family: 'Share Tech Mono', monospace;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.6s forwards;
+    }
+
+    .header-line {
+      margin: 40px auto 0;
+      width: 120px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--glow-bright), transparent);
+      opacity: 0;
+      animation: fadeUp 0.8s 0.8s forwards;
+    }
+
+    /* ── MAIN ── */
+    main {
+      position: relative;
+      z-index: 10;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 60px 20px 100px;
+    }
+
+    .section-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--purple-core);
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      margin-bottom: 40px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--purple-dark), transparent);
+    }
+
+    /* ── DEMO CARD ── */
+    .demo-card {
+      background: linear-gradient(135deg, #1A1A1A 0%, #2D0A31 100%);
+      border: 1px solid var(--purple-dark);
+      border-radius: 4px;
+      margin-bottom: 48px;
+      overflow: hidden;
+      position: relative;
+      transition: border-color 0.3s ease, transform 0.3s ease;
+      opacity: 0;
+      animation: fadeUp 0.7s forwards;
+    }
+
+    .demo-card:hover {
+      border-color: var(--purple-core);
+      transform: translateY(-3px);
+      box-shadow:
+        0 0 30px rgba(147,51,234,0.2),
+        0 0 60px rgba(176,38,255,0.1),
+        inset 0 0 30px rgba(176,38,255,0.03);
+    }
+
+    .demo-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--purple-core), var(--glow-bright), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .demo-card:hover::before { opacity: 1; }
+
+    .card-header {
+      padding: 20px 24px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(74,14,78,0.5);
+    }
+
+    .card-dots {
+      display: flex;
+      gap: 7px;
+    }
+    .card-dots span {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    .dot-r { background: #FF5F57; }
+    .dot-y { background: #FFBD2E; }
+    .dot-g { background: #28CA41; }
+
+    .card-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--purple-vivid);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .card-badge {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--glow-bright);
+      border: 1px solid rgba(217,70,239,0.3);
+      padding: 3px 10px;
+      border-radius: 2px;
+      background: rgba(217,70,239,0.05);
+    }
+
+    .card-desc {
+      padding: 12px 24px 0;
+      font-size: 0.95rem;
+      color: var(--border-mid);
+      font-family: 'Share Tech Mono', monospace;
+    }
+    .card-desc::before { content: '> '; color: var(--purple-core); }
+
+    .card-player {
+      padding: 20px 24px 24px;
+    }
+
+    /* ── ADD NEW CARD ── */
+    .add-card {
+      border: 1px dashed var(--purple-dark);
+      border-radius: 4px;
+      padding: 40px;
+      text-align: center;
+      color: var(--border-dim);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .add-card:hover {
+      border-color: var(--purple-core);
+      color: var(--purple-vivid);
+      background: rgba(147,51,234,0.05);
+    }
+    .add-card .plus {
+      display: block;
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: var(--purple-dark);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 30px 20px;
+      border-top: 1px solid rgba(74,14,78,0.4);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--border-dim);
+      letter-spacing: 3px;
+    }
+    footer span { color: var(--purple-core); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .demo-card:nth-child(1) { animation-delay: 0.2s; }
+    .demo-card:nth-child(2) { animation-delay: 0.4s; }
+    .demo-card:nth-child(3) { animation-delay: 0.6s; }
+    .demo-card:nth-child(4) { animation-delay: 0.8s; }
+
+    /* Scanline effect */
+    .scanline {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: rgba(176,38,255,0.15);
+      animation: scan 8s linear infinite;
+      pointer-events: none;
+      z-index: 5;
+    }
+    @keyframes scan {
+      0%   { top: -2px; }
+      100% { top: 100vh; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-trail" id="cursorTrail"></div>
+  <div class="scanline"></div>
+
+  <!-- HEADER -->
+  <header>
+    <p class="header-tag">// terminal.sessions</p>
+    <h1>JMiguel<span>Hz</span></h1>
+    <p class="subtitle">_colección de demos · live terminal recordings_</p>
+    <div class="header-line"></div>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+    <p class="section-label">sessions_archive</p>
+
+    <!-- DEMO 1 — tu grabación actual -->
+    <div class="demo-card">
+      <div class="card-header">
+        <div class="card-dots">
+          <span class="dot-r"></span>
+          <span class="dot-y"></span>
+          <span class="dot-g"></span>
+        </div>
+        <span class="card-title">Session_01</span>
+        <span class="card-badge">REC</span>
+      </div>
+      <p class="card-desc">Descripción de lo que muestra esta grabación</p>
+      <div class="card-player">
+        <div id="player-01"></div>
+      </div>
+    </div>
+
+    <!-- DEMO 2 — pega aquí la siguiente grabación -->
+    <!--
+    <div class="demo-card">
+      <div class="card-header">
+        <div class="card-dots">
+          <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+        </div>
+        <span class="card-title">Session_02</span>
+        <span class="card-badge">REC</span>
+      </div>
+      <p class="card-desc">Descripción de la segunda grabación</p>
+      <div class="card-player">
+        <div id="player-02"></div>
+      </div>
+    </div>
+    -->
+
+    <!-- PLACEHOLDER -->
+    <div class="add-card">
+      <span class="plus">+</span>
+      PRÓXIMA SESIÓN · DESCOMENTA EL BLOQUE DE ARRIBA
+    </div>
+
+  </main>
+
+  <footer>
+    <p>crafted by <span>JMiguelHz</span> · powered by asciinema · hosted on github pages</p>
+  </footer>
+
+  <script src="https://unpkg.com/asciinema-player@3.8.0/dist/bundle/asciinema-player.min.js"></script>
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const trail  = document.getElementById('cursorTrail');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top  = e.clientY + 'px';
+      setTimeout(() => {
+        trail.style.left = e.clientX + 'px';
+        trail.style.top  = e.clientY + 'px';
+      }, 80);
+    });
+
+    // ── PLAYERS ──
+    // Cambia la ruta por la URL raw de tu .cast en GitHub:
+    // https://raw.githubusercontent.com/Jmiguelhz/Prueba-de-txt/main/nombre.cast
+
+    AsciinemaPlayer.create(
+      'https://raw.githubusercontent.com/Jmiguelhz/Prueba-de-txt/main/demo1.cast',
+      document.getElementById('player-01'),
+      { theme: 'monokai', speed: 1, fit: 'width' }
+    );
+
+    // Descomenta cuando tengas una segunda grabación:
+    // AsciinemaPlayer.create(
+    //   'https://raw.githubusercontent.com/Jmiguelhz/Prueba-de-txt/main/demo2.cast',
+    //   document.getElementById('player-02'),
+    //   { theme: 'monokai', speed: 1, fit: 'width' }
+    // );
+  </script>
+</body>
+</html>
